@@ -138,7 +138,7 @@ static void restore_palette(void);
 
 static struct
 {
-	short	startup_kbrate;
+    short	startup_kbrate;
     /* from cookie _VDO */
     long    vdo;
     /* display compatibility flags */
@@ -175,7 +175,7 @@ vdo_init(void)
     int rez = 0;
     int mode = 0;
     memset(&g, 0, sizeof(g));
-	g.startup_kbrate = Kbrate(-1, -1);
+    g.startup_kbrate = Kbrate(-1, -1);
     g.rezdef = &rezinvalid;
 
     if (Getcookie(C__VDO, &g.vdo) == C_NOTFOUND)
@@ -383,7 +383,7 @@ vdo_get_max_colors(void)
 void 
 vdo_exit(void)
 {
-	Kbrate(g.startup_kbrate >> 8, g.startup_kbrate & 0xFF);
+    Kbrate(g.startup_kbrate >> 8, g.startup_kbrate & 0xFF);
     restore_resolution();
     restore_palette();
     free(g.vram);
@@ -418,8 +418,8 @@ vdo_kbrate(char_u *arg)
     }
 
     contracev("%d, %d", initial, repeat);
-	if (initial > -1 || repeat > -1)
-	    Kbrate(initial, repeat);
+    if (initial > -1 || repeat > -1)
+        Kbrate(initial, repeat);
 }
 
 int
