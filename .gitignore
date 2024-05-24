@@ -70,3 +70,12 @@ src/testdir/small.vim
 src/testdir/tiny.vim 
 src/testdir/test*.out
 src/testdir/test.log
+
+# TOS
+tostest/
+tmp/
+*.ttp
+*.tos
+log.*
+tags
+run.sh

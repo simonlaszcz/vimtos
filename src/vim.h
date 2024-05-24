@@ -338,6 +338,10 @@
 # include "os_mint.h"
 #endif
 
+#ifdef TOS 
+# include "os_tos.h"
+#endif
+
 #if defined(MACOS)
 # if defined(__MRC__) || defined(__SC__) /* MPW Compilers */
 #  define HAVE_SETENV
@@ -500,7 +504,11 @@ typedef unsigned long u8char_T;	    /* long should be 32 bits or more */
 #  include <strings.h>
 # endif
 # ifdef HAVE_STAT_H
-#  include <stat.h>
+#  if defined(TOS)
+#   include <ext.h>
+#  else
+#   include <stat.h>
+#  endif
 # endif
 # ifdef HAVE_STDLIB_H
 #  include <stdlib.h>
@@ -791,6 +799,9 @@ extern char *(*dyn_libintl_textdomain)(const char *domainname);
 #define EXPAND_HISTORY		41
 #define EXPAND_USER		42
 #define EXPAND_SYNTIME		43
+#ifdef TOS
+#define EXPAND_RESOLUTION       44
+#endif
 
 /* Values for exmode_active (0 is no exmode) */
 #define EXMODE_NORMAL		1
@@ -1881,7 +1892,14 @@ typedef int proftime_T;	    /* dummy for function prototypes */
 #define VV_OLDFILES	55
 #define VV_WINDOWID	56
 #define VV_PROGPATH	57
-#define VV_LEN		58	/* number of v: vars */
+#ifdef TOS
+# define VV_RESOLUTION  58
+# define VV_MACHINE     59
+# define VV_OS          60
+# define VV_LEN		    61	/* number of v: vars */
+#else
+# define VV_LEN		58	/* number of v: vars */
+#endif
 
 #ifdef FEAT_CLIPBOARD
 

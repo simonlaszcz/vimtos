@@ -74,7 +74,9 @@
 #ifdef VAXC
 # include <file.h>
 #else
-# include <fcntl.h>
+# ifndef TOS
+#  include <fcntl.h>
+# endif
 #endif
 #ifdef __TSC__
 # define MSDOS
@@ -151,7 +153,11 @@ char osver[] = " (dos 32 bit)";
 #  ifdef MSDOS
 char osver[] = " (dos 16 bit)";
 #  else
+#   ifdef TOS
+char osver[] = "(TOS 16 bit)";
+#   else
 char osver[] = "";
+#   endif
 #  endif
 # endif
 #endif
@@ -227,6 +233,14 @@ char hexxa[] = "0123456789abcdef0123456789ABCDEF", *hexx = hexxa;
 #define HEX_BITS 3		/* not hex a dump, but bits: 01111001 */
 
 static char *pname;
+
+#ifdef TOS
+static void
+perror(const char *s)
+{
+  fprintf(stderr, s);
+}
+#endif
 
   static void
 exit_with_usage()
@@ -479,7 +493,7 @@ main(argc, argv)
   static char l[LLEN+1];  /* static because it may be too big for stack */
   char *pp;
 
-#ifdef AMIGA
+#if defined(AMIGA)
   /* This program doesn't work when started from the Workbench */
   if (argc == 0)
     exit(1);

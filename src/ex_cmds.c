@@ -5858,7 +5858,9 @@ ex_help(eap)
 #endif
 
     if (tag != NULL)
+    {
 	do_tag(tag, DT_HELP, 1, FALSE, TRUE);
+    }
 
     /* Delete the empty buffer if we're not using it.  Careful: autocommands
      * may have jumped to another window, check that the buffer is not in a

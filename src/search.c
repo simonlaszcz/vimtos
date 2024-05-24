@@ -2430,6 +2430,8 @@ showmatch(c)
     colnr_T	save_dollar_vcol;
     char_u	*p;
 
+	vim_memset(&vcol, 0, sizeof(colnr_T));
+
     /*
      * Only show match for chars in the 'matchpairs' option.
      */

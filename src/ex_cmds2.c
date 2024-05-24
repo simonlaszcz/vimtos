@@ -4424,3 +4424,16 @@ get_locales(xp, idx)
 # endif
 
 #endif
+
+#ifdef TOS
+/*
+ * Function given to ExpandGeneric() to obtain the available ATARI resolutions.
+ */
+    char_u *
+get_resolutions(xp, idx)
+    expand_T	*xp UNUSED;
+    int		idx;
+{
+    return vdo_iter_resolutions(idx);
+}
+#endif

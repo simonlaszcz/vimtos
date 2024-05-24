@@ -6707,6 +6707,9 @@ cursor_pos_info()
     oparg_T	oparg;
     struct block_def	bd;
 
+	vim_memset(&min_pos, 0, sizeof(pos_T));
+	vim_memset(&max_pos, 0, sizeof(pos_T));
+
     /*
      * Compute the length of the file in characters.
      */

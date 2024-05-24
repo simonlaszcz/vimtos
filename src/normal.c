@@ -6580,6 +6580,9 @@ nv_brackets(cap)
 	    int	    line_count = curbuf->b_ml.ml_line_count;
 	    pos_T   start, end;
 
+		vim_memset(&start, 0, sizeof(pos_T));
+		vim_memset(&end, 0, sizeof(pos_T));
+
 	    if (VIsual_active)
 	    {
 		start = ltoreq(VIsual, curwin->w_cursor)

@@ -801,7 +801,7 @@ vim_mem_profile_dump()
  * Some memory is reserved for error messages and for being able to
  * call mf_release_all(), which needs some memory for mf_trans_add().
  */
-#if defined(MSDOS) && !defined(DJGPP)
+#if (defined(MSDOS) && !defined(DJGPP)) || defined(TOS)
 # define SMALL_MEM
 # define KEEP_ROOM 8192L
 #else
@@ -5854,7 +5854,7 @@ find_file_in_path_option(ptr, len, options, first, path_option, find_what, rel_f
     if (vim_isAbsName(ff_file_to_find)
 	    /* "..", "../path", "." and "./path": don't use the path_option */
 	    || rel_to_curdir
-#if defined(MSWIN) || defined(MSDOS) || defined(OS2)
+#if defined(MSWIN) || defined(MSDOS) || defined(OS2) || defined(TOS)
 	    /* handle "\tmp" as absolute path */
 	    || vim_ispathsep(ff_file_to_find[0])
 	    /* handle "c:name" as absolute path */

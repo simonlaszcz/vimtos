@@ -3346,6 +3346,7 @@ is_mouse_key(c)
 get_keystroke()
 {
     char_u	*buf = NULL;
+    char_u  *buf2 = NULL;
     int		buflen = 150;
     int		maxlen;
     int		len = 0;
@@ -3370,7 +3371,10 @@ get_keystroke()
 	    /* Need some more space. This might happen when receiving a long
 	     * escape sequence. */
 	    buflen += 100;
-	    buf = vim_realloc(buf, buflen);
+	    buf2 = vim_realloc(buf, buflen);
+		if (buf2 == NULL)
+			vim_free(buf);
+		buf = buf2;
 	    maxlen = (buflen - 6 - len) / 3;
 	}
 	if (buf == NULL)
@@ -3784,7 +3788,7 @@ init_homedir()
 # endif
 #endif
 
-#if defined(OS2) || defined(MSDOS) || defined(MSWIN)
+#if defined(OS2) || defined(MSDOS) || defined(MSWIN) || defined(TOS)
     /*
      * Default home dir is C:/
      * Best assumption we can make in such a situation.
@@ -4157,7 +4161,7 @@ vim_getenv(name, mustfree)
     char_u	*pend;
     int		vimruntime;
 
-#if defined(OS2) || defined(MSDOS) || defined(MSWIN)
+#if defined(OS2) || defined(MSDOS) || defined(MSWIN) || defined(TOS)
     /* use "C:/" when $HOME is not set */
     if (STRCMP(name, "HOME") == 0)
 	return homedir;
@@ -4908,7 +4912,7 @@ get_past_head(path)
 {
     char_u  *retval;
 
-#if defined(MSDOS) || defined(MSWIN) || defined(OS2)
+#if defined(MSDOS) || defined(MSWIN) || defined(OS2) || defined(TOS)
     /* may skip "c:" */
     if (isalpha(path[0]) && path[1] == ':')
 	retval = path + 2;
@@ -10138,7 +10142,7 @@ get_path_cutoff(fname, gap)
 	int j = 0;
 
 	while ((fname[j] == path_part[i][j]
-# if defined(MSWIN) || defined(MSDOS)
+# if defined(MSWIN) || defined(MSDOS) || defined(TOS)
 		|| (vim_ispathsep(fname[j]) && vim_ispathsep(path_part[i][j]))
 #endif
 			     ) && fname[j] != NUL && path_part[i][j] != NUL)
@@ -10261,7 +10265,7 @@ uniquefy_paths(gap, pattern)
 	     */
 	    short_name = shorten_fname(path, curdir);
 	    if (short_name != NULL && short_name > path + 1
-#if defined(MSWIN) || defined(MSDOS)
+#if defined(MSWIN) || defined(MSDOS) || defined(TOS)
 		    /* On windows,
 		     *	    shorten_fname("c:\a\a.txt", "c:\a\b")
 		     * returns "\a\a.txt", which is not really the short

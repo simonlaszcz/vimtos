@@ -4704,6 +4704,9 @@ ExpandFromContext(xp, pat, num_file, file, options)
 #endif
 	    {EXPAND_ENV_VARS, get_env_name, TRUE, TRUE},
 	    {EXPAND_USER, get_users, TRUE, FALSE},
+#ifdef TOS
+	    {EXPAND_RESOLUTION, get_resolutions, TRUE, FALSE},
+#endif
 	};
 	int	i;
 
@@ -4886,6 +4889,8 @@ expand_shellcmd(filepat, num_file, file, flagsarg)
 
 #if defined(MSDOS) || defined(MSWIN) || defined(OS2)
 	e = vim_strchr(s, ';');
+#elif defined(TOS)
+	e = vim_strchr(s, ',');
 #else
 	e = vim_strchr(s, ':');
 #endif
@@ -5183,7 +5188,7 @@ globpath(path, file, ga, expand_options)
 	copy_option_part(&path, buf, MAXPATHL, ",");
 	if (STRLEN(buf) + STRLEN(file) + 2 < MAXPATHL)
 	{
-# if defined(MSWIN) || defined(MSDOS)
+# if defined(MSWIN) || defined(MSDOS) || defined(TOS)
 	    /* Using the platform's path separator (\) makes vim incorrectly
 	     * treat it as an escape character, use '/' instead. */
 	    if (*buf != NUL && !after_pathsep(buf, buf + STRLEN(buf)))
@@ -6367,7 +6372,11 @@ ex_window()
 
     /* Create the command-line buffer empty. */
     (void)do_ecmd(0, NULL, NULL, NULL, ECMD_ONE, ECMD_HIDE, NULL);
+#ifdef TOS
+    (void)setfname(curbuf, (char_u *)"cmdln", NULL, TRUE);
+#else
     (void)setfname(curbuf, (char_u *)"[Command Line]", NULL, TRUE);
+#endif
     set_option_value((char_u *)"bt", 0L, (char_u *)"nofile", OPT_LOCAL);
     set_option_value((char_u *)"swf", 0L, NULL, OPT_LOCAL);
     curbuf->b_p_ma = TRUE;

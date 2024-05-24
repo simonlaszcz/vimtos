@@ -147,6 +147,12 @@ static char_u	*replace_makeprg __ARGS((exarg_T *eap, char_u *p, char_u **cmdline
 static char_u	*repl_cmdline __ARGS((exarg_T *eap, char_u *src, int srclen, char_u *repl, char_u **cmdlinep));
 static void	ex_highlight __ARGS((exarg_T *eap));
 static void	ex_colorscheme __ARGS((exarg_T *eap));
+#ifdef TOS
+static void	ex_resolution __ARGS((exarg_T *eap));
+static void	ex_palvim __ARGS((exarg_T *eap));
+static void	ex_palmap __ARGS((exarg_T *eap));
+static void	ex_kbrate __ARGS((exarg_T *eap));
+#endif
 static void	ex_quit __ARGS((exarg_T *eap));
 static void	ex_cquit __ARGS((exarg_T *eap));
 static void	ex_quit_all __ARGS((exarg_T *eap));
@@ -3962,6 +3968,19 @@ set_one_cmd_context(xp, buff)
 	    xp->xp_pattern = arg;
 	    break;
 
+#ifdef TOS
+	case CMD_resolution:
+	    xp->xp_context = EXPAND_RESOLUTION;
+	    xp->xp_pattern = arg;
+	    break;
+	case CMD_palvim:
+	case CMD_palmap:
+	case CMD_kbrate:
+	    xp->xp_context = EXPAND_NOTHING;
+	    xp->xp_pattern = arg;
+	    break;
+#endif
+
 	case CMD_compiler:
 	    xp->xp_context = EXPAND_COMPILER;
 	    xp->xp_pattern = arg;
@@ -5458,6 +5477,9 @@ static struct
     {EXPAND_SYNTIME, "syntime"},
 #endif
     {EXPAND_SETTINGS, "option"},
+#ifdef TOS
+    {EXPAND_RESOLUTION, "rez"},
+#endif
     {EXPAND_SHELLCMD, "shellcmd"},
 #if defined(FEAT_SIGNS)
     {EXPAND_SIGN, "sign"},
@@ -6516,6 +6538,36 @@ ex_colorscheme(eap)
     else if (load_colors(eap->arg) == FAIL)
 	EMSG2(_("E185: Cannot find color scheme '%s'"), eap->arg);
 }
+
+#ifdef TOS
+    static void
+ex_resolution(eap)
+    exarg_T	*eap;
+{
+    vdo_resolution(eap->arg);
+}
+
+    static void
+ex_palvim(eap)
+    exarg_T	*eap;
+{
+    vdo_palvim(eap);
+}
+
+    static void
+ex_palmap(eap)
+    exarg_T	*eap;
+{
+    vdo_palmap(eap->arg);
+}
+
+    static void
+ex_kbrate(eap)
+    exarg_T	*eap;
+{
+    vdo_kbrate(eap->arg);
+}
+#endif
 
     static void
 ex_highlight(eap)

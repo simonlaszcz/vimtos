@@ -6009,7 +6009,7 @@ convert_setup_ext(vcp, from, from_unicode_is_utf8, to, to_unicode_is_utf8)
 }
 
 #if defined(FEAT_GUI) || defined(AMIGA) || defined(WIN3264) \
-	|| defined(MSDOS) || defined(PROTO)
+	|| defined(MSDOS) || defined(PROTO) || defined(TOS)
 /*
  * Do conversion on typed input characters in-place.
  * The input and output are not NUL terminated!

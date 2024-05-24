@@ -106,7 +106,7 @@ static digr_T digraphdefault[] =
 	};
 
 #else	/* !MSDOS && !OS2 */
-# ifdef __MINT__
+# if defined(__MINT__) || defined(TOS)
 
 	/*
 	 * ATARI digraphs

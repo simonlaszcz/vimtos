@@ -362,6 +362,11 @@ static struct vimvar
     {VV_NAME("oldfiles",	 VAR_LIST), 0},
     {VV_NAME("windowid",	 VAR_NUMBER), VV_RO},
     {VV_NAME("progpath",	 VAR_STRING), VV_RO},
+#ifdef TOS
+    {VV_NAME("resolution",	 VAR_STRING), VV_RO},
+    {VV_NAME("machine",		 VAR_STRING), VV_RO},
+    {VV_NAME("os",	         VAR_STRING), VV_RO},
+#endif
 };
 
 /* shorthand */
@@ -12236,6 +12241,9 @@ f_has(argvars, rettv)
 #endif
 #ifdef WIN32
 	"win32",
+#endif
+#ifdef TOS
+	"atari"
 #endif
 #if defined(UNIX) && (defined(__CYGWIN32__) || defined(__CYGWIN__))
 	"win32unix",

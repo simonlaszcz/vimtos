@@ -1489,6 +1489,9 @@ list_version()
     MSG_PUTS(_("\n16-bit MS-DOS version"));
 # endif
 #endif
+#ifdef TOS
+    MSG_PUTS(_("\nATARI ST TOS version"));
+#endif
 #ifdef MACOS
 # ifdef MACOS_X
 #  ifdef MACOS_X_UNIX
@@ -1795,7 +1798,11 @@ intro_message(colon)
 	"",
 	N_("type  :q<Enter>               to exit         "),
 	N_("type  :help<Enter>  or  <F1>  for on-line help"),
+#ifdef TOS
+	N_("type  :help atari<Enter>      for ATARI info  "),
+#else
 	N_("type  :help version7<Enter>   for version info"),
+#endif
 	NULL,
 	"",
 	N_("Running in Vi compatible mode"),

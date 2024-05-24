@@ -53,4 +53,7 @@ int highlight_changed __ARGS((void));
 void set_context_in_highlight_cmd __ARGS((expand_T *xp, char_u *arg));
 char_u *get_highlight_name __ARGS((expand_T *xp, int idx));
 void free_highlight_fonts __ARGS((void));
+#ifdef TOS
+void hl_get_normal_cterm_colors __ARGS((int *bg, int *fg));
+#endif
 /* vim: set ft=c : */

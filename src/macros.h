@@ -186,7 +186,11 @@
      * the name ends in "/" and it's not a directory. */
 #   define mch_stat(n, p)	(illegal_slash(n) ? -1 : stat((n), (p)))
 #  else
-#   define mch_stat(n, p)	stat((n), (p))
+    /* On TOS struct stat.st_mtime is in TOS format which is not understood
+     * by the other time methods which expect UNIX time */
+#   ifndef TOS
+#    define mch_stat(n, p)	stat((n), (p))
+#   endif
 #  endif
 # endif
 #endif
@@ -209,7 +213,7 @@
  */
 #  define mch_open(n, m, p)	open(vms_fixfilename(n), (m), (p))
 # else
-#  if !(defined(FEAT_MBYTE) && defined(WIN3264))
+#  if !defined(TOS) && !(defined(FEAT_MBYTE) && defined(WIN3264))
 #   define mch_open(n, m, p)	open((n), (m), (p))
 #  endif
 # endif

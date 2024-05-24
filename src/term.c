@@ -822,7 +822,12 @@ static struct builtin_term builtin_termcaps[] =
     {K_BS,		"\x7f"},	/* for some reason 0177 doesn't work */
 # endif
 
-# if defined(ALL_BUILTIN_TCAPS) || defined(__MINT__)
+# if defined(ALL_BUILTIN_TCAPS) || defined(__MINT__) || defined(TOS)
+# ifdef TOS
+#  define KESC "\033[" /* avoid confusion between keys and VT52 codes */
+# else
+#  define KESC "\033"
+# endif
 /*
  * Ordinary vt52
  */
@@ -831,7 +836,7 @@ static struct builtin_term builtin_termcaps[] =
     {(int)KS_CD,	IF_EB("\033J", ESC_STR "J")},
     {(int)KS_CM,	IF_EB("\033Y%+ %+ ", ESC_STR "Y%+ %+ ")},
     {(int)KS_LE,	"\b"},
-#  ifdef __MINT__
+#  if defined(__MINT__) || defined(TOS)
     {(int)KS_AL,	IF_EB("\033L", ESC_STR "L")},
     {(int)KS_DL,	IF_EB("\033M", ESC_STR "M")},
     {(int)KS_CL,	IF_EB("\033E", ESC_STR "E")},
@@ -840,38 +845,46 @@ static struct builtin_term builtin_termcaps[] =
     {(int)KS_VI,	IF_EB("\033f", ESC_STR "f")},
     {(int)KS_SO,	IF_EB("\033p", ESC_STR "p")},
     {(int)KS_SE,	IF_EB("\033q", ESC_STR "q")},
-    {K_UP,		IF_EB("\033A", ESC_STR "A")},
-    {K_DOWN,		IF_EB("\033B", ESC_STR "B")},
-    {K_LEFT,		IF_EB("\033D", ESC_STR "D")},
-    {K_RIGHT,		IF_EB("\033C", ESC_STR "C")},
-    {K_S_UP,		IF_EB("\033a", ESC_STR "a")},
-    {K_S_DOWN,		IF_EB("\033b", ESC_STR "b")},
-    {K_S_LEFT,		IF_EB("\033d", ESC_STR "d")},
-    {K_S_RIGHT,		IF_EB("\033c", ESC_STR "c")},
-    {K_F1,		IF_EB("\033P", ESC_STR "P")},
-    {K_F2,		IF_EB("\033Q", ESC_STR "Q")},
-    {K_F3,		IF_EB("\033R", ESC_STR "R")},
-    {K_F4,		IF_EB("\033S", ESC_STR "S")},
-    {K_F5,		IF_EB("\033T", ESC_STR "T")},
-    {K_F6,		IF_EB("\033U", ESC_STR "U")},
-    {K_F7,		IF_EB("\033V", ESC_STR "V")},
-    {K_F8,		IF_EB("\033W", ESC_STR "W")},
-    {K_F9,		IF_EB("\033X", ESC_STR "X")},
-    {K_F10,		IF_EB("\033Y", ESC_STR "Y")},
-    {K_S_F1,		IF_EB("\033p", ESC_STR "p")},
-    {K_S_F2,		IF_EB("\033q", ESC_STR "q")},
-    {K_S_F3,		IF_EB("\033r", ESC_STR "r")},
-    {K_S_F4,		IF_EB("\033s", ESC_STR "s")},
-    {K_S_F5,		IF_EB("\033t", ESC_STR "t")},
-    {K_S_F6,		IF_EB("\033u", ESC_STR "u")},
-    {K_S_F7,		IF_EB("\033v", ESC_STR "v")},
-    {K_S_F8,		IF_EB("\033w", ESC_STR "w")},
-    {K_S_F9,		IF_EB("\033x", ESC_STR "x")},
-    {K_S_F10,		IF_EB("\033y", ESC_STR "y")},
-    {K_INS,		IF_EB("\033I", ESC_STR "I")},
-    {K_HOME,		IF_EB("\033E", ESC_STR "E")},
-    {K_PAGEDOWN,	IF_EB("\033b", ESC_STR "b")},
-    {K_PAGEUP,		IF_EB("\033a", ESC_STR "a")},
+#  ifdef TOS
+    /* Add 32 to the zero based number */
+    {(int)KS_CAB,	IF_EB("\033c%+ ", ESC_STR "c%+ ")}, /* bg colour */
+    {(int)KS_CAF,	IF_EB("\033b%+ ", ESC_STR "b%+ ")}, /* fg colour */
+    {(int)KS_CCO,	"16"},                  /* always 16, regadless of rez */
+    {(int)KS_OP,	"\033c \033b/"},	/* reset colors */
+    {(int)KS_ME,	"\033c \033b/\033q"},	/* reset term */
+#  endif
+    {K_UP,		IF_EB(KESC "A", ESC_STR "A")},
+    {K_DOWN,		IF_EB(KESC "B", ESC_STR "B")},
+    {K_LEFT,		IF_EB(KESC "D", ESC_STR "D")},
+    {K_RIGHT,		IF_EB(KESC "C", ESC_STR "C")},
+    {K_S_UP,		IF_EB(KESC "a", ESC_STR "a")},
+    {K_S_DOWN,		IF_EB(KESC "b", ESC_STR "b")},
+    {K_S_LEFT,		IF_EB(KESC "d", ESC_STR "d")},
+    {K_S_RIGHT,		IF_EB(KESC "c", ESC_STR "c")},
+    {K_F1,		IF_EB(KESC "P", ESC_STR "P")},
+    {K_F2,		IF_EB(KESC "Q", ESC_STR "Q")},
+    {K_F3,		IF_EB(KESC "R", ESC_STR "R")},
+    {K_F4,		IF_EB(KESC "S", ESC_STR "S")},
+    {K_F5,		IF_EB(KESC "T", ESC_STR "T")},
+    {K_F6,		IF_EB(KESC "U", ESC_STR "U")},
+    {K_F7,		IF_EB(KESC "V", ESC_STR "V")},
+    {K_F8,		IF_EB(KESC "W", ESC_STR "W")},
+    {K_F9,		IF_EB(KESC "X", ESC_STR "X")},
+    {K_F10,		IF_EB(KESC "Y", ESC_STR "Y")},
+    {K_S_F1,		IF_EB(KESC "p", ESC_STR "p")},
+    {K_S_F2,		IF_EB(KESC "q", ESC_STR "q")},
+    {K_S_F3,		IF_EB(KESC "r", ESC_STR "r")},
+    {K_S_F4,		IF_EB(KESC "s", ESC_STR "s")},
+    {K_S_F5,		IF_EB(KESC "t", ESC_STR "t")},
+    {K_S_F6,		IF_EB(KESC "u", ESC_STR "u")},
+    {K_S_F7,		IF_EB(KESC "v", ESC_STR "v")},
+    {K_S_F8,		IF_EB(KESC "w", ESC_STR "w")},
+    {K_S_F9,		IF_EB(KESC "x", ESC_STR "x")},
+    {K_S_F10,		IF_EB(KESC "y", ESC_STR "y")},
+    {K_INS,		IF_EB(KESC "I", ESC_STR "I")},
+    {K_HOME,		IF_EB(KESC "E", ESC_STR "E")},
+    {K_PAGEDOWN,	IF_EB(KESC "b", ESC_STR "b")},
+    {K_PAGEUP,		IF_EB(KESC "a", ESC_STR "a")},
 #  else
     {(int)KS_AL,	IF_EB("\033T", ESC_STR "T")},
     {(int)KS_DL,	IF_EB("\033U", ESC_STR "U")},
@@ -1365,7 +1378,7 @@ static struct builtin_term builtin_termcaps[] =
 # define DEFAULT_TERM	(char_u *)"ansi"
 #endif
 
-#ifdef __MINT__
+#if defined(__MINT__) || defined(TOS)
 # define DEFAULT_TERM	(char_u *)"vt52"
 #endif
 
@@ -1489,7 +1502,7 @@ parse_builtin_tcap(term)
 	}
     }
 }
-#if defined(HAVE_TGETENT) || defined(FEAT_TERMRESPONSE)
+#if defined(HAVE_TGETENT) || defined(FEAT_TERMRESPONSE) || defined(TOS)
 static void set_color_count __ARGS((int nr));
 
 /*
@@ -2485,6 +2498,9 @@ termcapinit(name)
      * Avoid using "term" here, because the next mch_getenv() may overwrite it.
      */
     set_termname(T_NAME != NULL ? T_NAME : term);
+#ifdef TOS
+    set_color_count(vdo_get_max_colors());
+#endif
 }
 
 /*
@@ -2554,7 +2570,7 @@ out_trash()
 out_char(c)
     unsigned	c;
 {
-#if defined(UNIX) || defined(VMS) || defined(AMIGA) || defined(MACOS_X_UNIX)
+#if defined(UNIX) || defined(VMS) || defined(AMIGA) || defined(MACOS_X_UNIX) || defined(TOS)
     if (c == '\n')	/* turn LF into CR-LF (CRMOD doesn't seem to do this) */
 	out_char('\r');
 #endif
@@ -2575,7 +2591,7 @@ static void out_char_nf __ARGS((unsigned));
 out_char_nf(c)
     unsigned	c;
 {
-#if defined(UNIX) || defined(VMS) || defined(AMIGA) || defined(MACOS_X_UNIX)
+#if defined(UNIX) || defined(VMS) || defined(AMIGA) || defined(MACOS_X_UNIX) || defined(TOS)
     if (c == '\n')	/* turn LF into CR-LF (CRMOD doesn't seem to do this) */
 	out_char_nf('\r');
 #endif
@@ -2732,6 +2748,9 @@ term_color(s, n)
 {
     char	buf[20];
     int i = 2;	/* index in s[] just after <Esc>[ or CSI */
+#ifdef TOS
+    n = vdo_remap_colornum(n);
+#endif
 
     /* Special handling of 16 colors, because termcap can't handle it */
     /* Also accept "\e[3%dm" for TERMINFO, it is sometimes used */

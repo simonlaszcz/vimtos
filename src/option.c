@@ -3753,7 +3753,9 @@ set_init_2()
     static char_u *
 term_bg_default()
 {
-#if defined(MSDOS) || defined(OS2) || defined(WIN3264)
+#if defined TOS
+    return (char_u *)"light";
+#elif defined(MSDOS) || defined(OS2) || defined(WIN3264)
     /* DOS console nearly always black */
     return (char_u *)"dark";
 #else
@@ -8696,6 +8698,9 @@ findoption(arg)
     char	    *s, *p;
     static short    quick_tab[27] = {0, 0};	/* quick access table */
     int		    is_term_opt;
+
+	if (arg == NULL || *arg == NUL)
+		return -1;
 
     /*
      * For first call: Initialize the quick-access table.

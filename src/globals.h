@@ -19,7 +19,7 @@
  */
 EXTERN long	Rows			/* nr of rows in the screen */
 #ifdef DO_INIT
-# if defined(MSDOS) || defined(WIN3264) || defined(OS2)
+# if defined(MSDOS) || defined(WIN3264) || defined(OS2) || defined(TOS)
 			    = 25L
 # else
 			    = 24L
@@ -1628,4 +1628,15 @@ EXTERN char *ignoredp;
  */
 #ifdef FEAT_ARABIC
 # include "arabic.h"
+#endif
+
+#ifdef TOS
+EXTERN char_u e_no_shell[]	INIT(= N_("T001: No shell installed"));
+EXTERN char_u e_bad_rez[]	INIT(= N_("T002: Invalid or incompatible resolution"));
+EXTERN char_u e_no_change[]	INIT(= N_("T003: No change"));
+EXTERN char_u e_no_ram[]	INIT(= N_("T004: Insufficient free RAM"));
+EXTERN char_u e_rez_unknown[]	INIT(= N_("T005: Use 'rez' to switch to a known resolution"));
+EXTERN char_u e_bad_palmap[]	INIT(= N_("T006: palmap should be a 16 hex digit string, or 'off'"));
+EXTERN char_u e_not_multitos[]	INIT(= N_("T007: Single TOS only"));
+EXTERN char_u e_bad_kbrate[]	INIT(= N_("T008: keyrate initial repeat"));
 #endif

@@ -1,0 +1,180 @@
+*os_atari.txt*	For Vim version 7.4.  Last change: 2024 May 07
+
+                         Notes on the Atari TOS Port
+
+|TOS_01| Introduction
+|TOS_02| Installation
+|TOS_03| Using a Shell
+|TOS_04| Setting the Palette
+|TOS_05| Changing Resolution
+|TOS_06| Changing the Keyboard Repeat Rate
+|TOS_07| Development
+
+==============================================================================
+
+*TOS_01* Introduction					*atari*
+
+The distribution contains tiny, small and normal feature builds. The
+executables are named vimt.ttp, vims.ttp and vim.ttp respectively.
+
+vimt.ttp starts and quits much faster than vim.ttp and is also much smaller
+(~450Kb vs. ~1Mb) but has far fewer features (e.g. splits, command windows and
+eval are missing).
+
+More advanced features such as tags and syntax highlighting are very slow on 
+an 8MHz machine. tags performance might be improved by copying tag files to a 
+RAM disk and using the option 'set tags=path1;path2...'. Using an accelerator 
+will improve performance all round.
+
+==============================================================================
+
+*TOS_02* Installation
+
+Each build has its own rc file, namely: vimrct, vimrcs and vimrc. 
+vimrc includes vimrcs and vimrcs includes vimrct.
+
+Some features are missing from certain builds (e.g. tiny and small do not
+support eval) and will give errors if used in the builds rc file.
+
+The distribution includes a cut down runtime. You may use the full Vim runtime
+if you wish but having fewer files to glob improves performance.
+
+You should set the following environment variables in your shell:
+VIM
+VIMRUNTIME
+HOME
+
+However, if not set the following defaults are used:
+VIM=C:\VIM
+VIMRUNTIME=C:\VIM\RT
+
+The following variables are available in the normal build (which supports the
+'eval' feature):
+
+*v:resolution*	The current resolution. 
+		Either st-{low,med,hi}, tt-{low,med,hi} or a Falcon mode 
+		such as 320x200, 384x240 etc
+*v:machine*	The current machine.
+		Either ST, STe, TT, Falcon or unknown
+*v:os*		The current OS.
+		Either TOS, MagiC, MiNT or Geneva
+
+They could be used to conditionally set options in vimrc.
+
+==============================================================================
+
+*TOS_03* Using a Shell					*shell* *gulam*
+
+Any shell that sets the _shell_p vector can be used, e.g. Gulam.
+
+:lmake and :lopen can be used in vim.ttp. By default Vim attempts to execute the
+make utility in the current working directory. If make is not installed, the 
+simplest way to get this to work is to create a shell script called 'make'.
+
+e.g. make.g might contain:
+
+gen.ttp $1
+
+then to make the file being edited:
+
+:lmake %
+
+Ensure your PATH environment variable is set correctly first.
+
+The cut down runtime includes compiler files for gcc and devpac. These files 
+will format the error output from these programs for display by :lopen.
+
+For devpac you will need to set the default compiler first. Do this with the 
+command:
+
+:compiler devpac
+
+==============================================================================
+
+*TOS_04* Setting the Palette				*palvim* *palmap*
+
+Vim colours are numbered thus:
+
+0	Black
+1	DarkBlue
+2	DarkGreen
+3	DarkCyan
+4	DarkRed
+5	DarkMagenta
+6	Brown
+7	LightGray
+8	DarkGray
+9	Blue
+10	Green
+11	Cyan
+12	Red
+13	Magenta
+14	Yellow
+15	White
+
+:palvim (single TOS only)
+
+Changes the palette to the Vim colours above. A colour remapping occurs to
+enure that the Vim background colour matches the border colour.  When using a 
+resolution with fewer than 16 colours an additional colour remapping takes
+place. This port supports a maxium of 16 colours even on the TT and Falcon.
+
+When Vim is quit, the startup palette is restored.
+
+The distribution includes many Vim colour schemes. Some target 256 colour
+xterm displays so will not display perfectly. However the 'blue' scheme works
+well accross all machines.
+
+Tab through all colour schemes with:
+
+:color<SP><TAB>
+
+For example, to set the blue scheme use:
+
+:palvim
+:color blue
+
+:palmap {16 hex char string}
+
+You may map your existing palette to the Vim colour numbers by supplying a 16
+character hex string.
+
+e.g.
+
+:palmap abc0123456789def
+
+will map colour index 10 to Vim colour number 0 etc
+
+==============================================================================
+
+*TOS_05* Changing Resolution					*rez*
+
+:rez		will display the current resolution.
+:rez name	will set the named resolution
+:rez<SP><TAB>	will allow you to <TAB> through all valid resolutions.
+
+When Vim is quit, the startup resolution is restored.
+
+The current resolution is stored in the variable |v:resolution|.
+
+==============================================================================
+
+*TOS_06* Changing the Keyboard Repeat Rate			*Kbrate*
+
+:Kbrate			Display the current setting
+:Kbrate initial every	Set keypresses to repeat after an initial
+			number of ticks and then every n 50/60Hz ticks.
+
+When Vim is quit, the startup repeat rate is restored.
+
+==============================================================================
+
+*TOS_07* Development						*develop*
+
+Changes to the existing code are wrapped with the 'TOS' macro.
+
+All os_atari_* files and Make_tos.mak are specific to this port.
+
+==============================================================================
+
+vim:tw=78:ts=8:ft=help:norl:noexpandtab:

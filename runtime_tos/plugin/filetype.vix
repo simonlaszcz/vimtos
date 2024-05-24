@@ -1,0 +1,175 @@
+" Vim support file to detect file types
+"
+" Maintainer:	Bram Moolenaar <Bram@vim.org>
+" Last Change:	2014 Feb 26
+"
+" Cut down version for ATARI TOS
+
+" Listen very carefully, I will say this only once
+if exists("did_load_filetypes")
+  finish
+endif
+let did_load_filetypes = 1
+
+" Line continuation is used here, remove 'C' from 'cpoptions'
+let s:cpo_save = &cpo
+set cpo&vim
+
+augroup filetypedetect
+
+" Ignored extensions
+if exists("*fnameescape")
+au BufNewFile,BufRead ?\+.orig,?\+.bak,?\+.old,?\+.new,?\+.dpkg-dist,?\+.dpkg-old,?\+.dpkg-new,?\+.dpkg-bak,?\+.rpmsave,?\+.rpmnew
+	\ exe "doau filetypedetect BufRead " . fnameescape(expand("<afile>:r"))
+au BufNewFile,BufRead *~
+	\ let s:name = expand("<afile>") |
+	\ let s:short = substitute(s:name, '\~$', '', '') |
+	\ if s:name != s:short && s:short != "" |
+	\   exe "doau filetypedetect BufRead " . fnameescape(s:short) |
+	\ endif |
+	\ unlet! s:name s:short
+au BufNewFile,BufRead ?\+.in
+	\ if expand("<afile>:t") != "configure.in" |
+	\   exe "doau filetypedetect BufRead " . fnameescape(expand("<afile>:r")) |
+	\ endif
+elseif &verbose > 0
+  echomsg "Warning: some filetypes will not be recognized because this version of Vim does not have fnameescape()"
+endif
+
+" Pattern used to match file names which should not be inspected.
+" Currently finds compressed files.
+if !exists("g:ft_ignore_pat")
+  let g:ft_ignore_pat = '\.\(Z\|gz\|bz2\|zip\|tgz\)$'
+endif
+
+" Function used for patterns that end in a star: don't set the filetype if the
+" file name matches ft_ignore_pat.
+func! s:StarSetf(ft)
+  if expand("<amatch>") !~ g:ft_ignore_pat
+    exe 'setf ' . a:ft
+  endif
+endfunc
+
+" Assembly (all kinds)
+" *.lst is not pure assembly, it has two extra columns (address, byte codes)
+au BufNewFile,BufRead *.asm,*.[sS],*.[aA],*.mac,*.lst	call s:FTasm()
+
+" This function checks for the kind of assembly that is wanted by the user, or
+" can be detected from the first five lines of the file.
+func! s:FTasm()
+  " make sure b:asmsyntax exists
+  if !exists("b:asmsyntax")
+    let b:asmsyntax = ""
+  endif
+
+  if b:asmsyntax == ""
+    call s:FTasmsyntax()
+  endif
+
+  " if b:asmsyntax still isn't set, default to asmsyntax or GNU
+  if b:asmsyntax == ""
+    if exists("g:asmsyntax")
+      let b:asmsyntax = g:asmsyntax
+    else
+      let b:asmsyntax = "asm"
+    endif
+  endif
+
+  exe "setf " . fnameescape(b:asmsyntax)
+endfunc
+
+func! s:FTasmsyntax()
+  " see if file contains any asmsyntax=foo overrides. If so, change
+  " b:asmsyntax appropriately
+  let head = " ".getline(1)." ".getline(2)." ".getline(3)." ".getline(4).
+	\" ".getline(5)." "
+  let match = matchstr(head, '\sasmsyntax=\zs[a-zA-Z0-9]\+\ze\s')
+  if match != ''
+    let b:asmsyntax = match
+  elseif ((head =~? '\.title') || (head =~? '\.ident') || (head =~? '\.macro') || (head =~? '\.subtitle') || (head =~? '\.library'))
+    let b:asmsyntax = "vmasm"
+  endif
+endfunc
+
+" BASIC or Visual Basic
+au BufNewFile,BufRead *.bas			call s:FTVB("basic")
+
+" Check if one of the first five lines contains "VB_Name".  In that case it is
+" probably a Visual Basic file.  Otherwise it's assumed to be "alt" filetype.
+func! s:FTVB(alt)
+  if getline(1).getline(2).getline(3).getline(4).getline(5) =~? 'VB_Name\|Begin VB\.\(Form\|MDIForm\|UserControl\)'
+    setf vb
+  else
+    exe "setf " . a:alt
+  endif
+endfunc
+
+" C or lpc
+au BufNewFile,BufRead *.c			call s:FTlpc()
+
+func! s:FTlpc()
+  if exists("g:lpc_syntax_for_c")
+    let lnum = 1
+    while lnum <= 12
+      if getline(lnum) =~# '^\(//\|inherit\|private\|protected\|nosave\|string\|object\|mapping\|mixed\)'
+	setf lpc
+	return
+      endif
+      let lnum = lnum + 1
+    endwhile
+  endif
+  setf c
+endfunc
+
+" .h files can be C, Ch C++, ObjC or ObjC++.
+" Set c_syntax_for_h if you want C, ch_syntax_for_h if you want Ch. ObjC is
+" detected automatically.
+au BufNewFile,BufRead *.h			call s:FTheader()
+
+func! s:FTheader()
+  if match(getline(1, min([line("$"), 200])), '^@\(interface\|end\|class\)') > -1
+    if exists("g:c_syntax_for_h")
+      setf objc
+    else
+      setf objcpp
+    endif
+  elseif exists("g:c_syntax_for_h")
+    setf c
+  elseif exists("g:ch_syntax_for_h")
+    setf ch
+  else
+    setf cpp
+  endif
+endfunc
+
+" Forth
+au BufNewFile,BufRead *.fs,*.ft			setf forth
+
+" Host config
+au BufNewFile,BufRead */etc/host.conf		setf hostconf
+
+" Hosts access
+au BufNewFile,BufRead */etc/hosts.allow,*/etc/hosts.deny  setf hostsaccess
+
+" Modula 2
+au BufNewFile,BufRead *.m2,*.DEF,*.MOD,*.md,*.mi setf modula2
+
+" Modula 3 (.m3, .i3, .mg, .ig)
+au BufNewFile,BufRead *.[mi][3g]		setf modula3
+
+" Pascal (also *.p)
+au BufNewFile,BufRead *.pas			setf pascal
+
+" RCS file
+au BufNewFile,BufRead *\,v			setf rcs
+
+" Tags
+au BufNewFile,BufRead tags			setf tags
+
+" Vim script
+au BufNewFile,BufRead *.vim,*.vba,.exrc,_exrc	setf vim
+
+" Viminfo file
+au BufNewFile,BufRead .viminfo,_viminfo,_vimrc,vimrc		setf viminfo
+
+augroup END

@@ -7041,6 +7041,26 @@ init_highlight(both, reset)
 #endif
 }
 
+#ifdef TOS
+    void
+hl_get_normal_cterm_colors(bg, fg)
+    int *bg;
+    int *fg;
+{
+    *bg = *fg = 0;
+	int id = syn_name2id((char_u *)"Normal");
+
+    if (id > 0)
+    {
+	    *bg = HL_TABLE()[id - 1].sg_cterm_bg;
+	    *fg = HL_TABLE()[id - 1].sg_cterm_fg;
+
+        if (*bg > 0) --(*bg);
+        if (*fg > 0) --(*fg);
+    }
+}
+#endif
+
 /*
  * Load color file "name".
  * Return OK for success, FAIL for failure.
@@ -7070,6 +7090,9 @@ load_colors(name)
 	apply_autocmds(EVENT_COLORSCHEME, name, curbuf->b_fname, FALSE, curbuf);
 #endif
     }
+#ifdef TOS
+    vdo_init_bg();
+#endif
     recursive = FALSE;
 
     return retval;

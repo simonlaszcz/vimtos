@@ -1307,7 +1307,7 @@ mf_do_open(mfp, fname, flags)
      * fname cannot be NameBuff, because it must have been allocated.
      */
     mf_set_ffname(mfp);
-#if defined(MSDOS) || defined(MSWIN)
+#if defined(MSDOS) || defined(MSWIN) || defined(TOS)
     /*
      * A ":!cd e:xxx" may change the directory without us knowing, use the
      * full pathname always.  Careful: This frees fname!

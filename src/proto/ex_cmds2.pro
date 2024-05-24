@@ -87,4 +87,7 @@ void ex_language __ARGS((exarg_T *eap));
 void free_locales __ARGS((void));
 char_u *get_lang_arg __ARGS((expand_T *xp, int idx));
 char_u *get_locales __ARGS((expand_T *xp, int idx));
+#ifdef TOS
+char_u *get_resolutions __ARGS((expand_T *xp, int idx));
+#endif
 /* vim: set ft=c : */

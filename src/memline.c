@@ -317,7 +317,7 @@ ml_open(buf)
     curwin->w_nrwidth_line_count = 0;
 #endif
 
-#if defined(MSDOS) && !defined(DJGPP)
+#if (defined(MSDOS) && !defined(DJGPP)) || defined(TOS)
     /* for 16 bit MS-DOS create a swapfile now, because we run out of
      * memory very quickly */
     if (p_uc != 0)
@@ -598,7 +598,7 @@ ml_setname(buf)
     memfile_T	*mfp;
     char_u	*fname;
     char_u	*dirp;
-#if defined(MSDOS) || defined(MSWIN)
+#if defined(MSDOS) || defined(MSWIN) || defined(TOS)
     char_u	*p;
 #endif
 
@@ -629,7 +629,7 @@ ml_setname(buf)
 	if (fname == NULL)	    /* no file name found for this dir */
 	    continue;
 
-#if defined(MSDOS) || defined(MSWIN)
+#if defined(MSDOS) || defined(MSWIN) || defined(TOS)
 	/*
 	 * Set full pathname for swap file now, because a ":!cd dir" may
 	 * change directory without us knowing it.
@@ -661,7 +661,7 @@ ml_setname(buf)
 	    vim_free(mfp->mf_fname);
 	    mfp->mf_fname = fname;
 	    vim_free(mfp->mf_ffname);
-#if defined(MSDOS) || defined(MSWIN)
+#if defined(MSDOS) || defined(MSWIN) || defined(TOS)
 	    mfp->mf_ffname = NULL;  /* mf_fname is full pathname already */
 #else
 	    mf_set_ffname(mfp);
@@ -755,7 +755,7 @@ ml_open_file(buf)
 	    continue;
 	if (mf_open_file(mfp, fname) == OK)	/* consumes fname! */
 	{
-#if defined(MSDOS) || defined(MSWIN)
+#if defined(MSDOS) || defined(MSWIN) || defined(TOS)
 	    /*
 	     * set full pathname for swap file now, because a ":!cd dir" may
 	     * change directory without us knowing it.
@@ -941,7 +941,7 @@ set_b0_fname(b0p, buf)
 	b0p->b0_fname[0] = NUL;
     else
     {
-#if defined(MSDOS) || defined(MSWIN) || defined(AMIGA)
+#if defined(MSDOS) || defined(MSWIN) || defined(AMIGA) || defined(TOS)
 	/* Systems that cannot translate "~user" back into a path: copy the
 	 * file name unmodified.  Do use slashes instead of backslashes for
 	 * portability. */

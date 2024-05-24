@@ -5360,7 +5360,7 @@ check_mtime(buf, st)
 time_differs(t1, t2)
     long	t1, t2;
 {
-#if defined(__linux__) || defined(MSDOS) || defined(MSWIN)
+#if defined(__linux__) || defined(MSDOS) || defined(MSWIN) || defined(TOS)
     /* On a FAT filesystem, esp. under Linux, there are only 5 bits to store
      * the seconds.  Since the roundoff is done when flushing the inode, the
      * time may change unexpectedly by one second!!! */
@@ -6095,7 +6095,7 @@ shorten_fname(full_path, dir_name)
     if (fnamencmp(dir_name, full_path, len) == 0)
     {
 	p = full_path + len;
-#if defined(MSDOS) || defined(MSWIN) || defined(OS2)
+#if defined(MSDOS) || defined(MSWIN) || defined(OS2) || defined(TOS)
 	/*
 	 * MSDOS: when a file is in the root directory, dir_name will end in a
 	 * slash, since C: by itself does not define a specific dir. In this
@@ -6112,7 +6112,7 @@ shorten_fname(full_path, dir_name)
 #endif
 	}
     }
-#if defined(MSDOS) || defined(MSWIN) || defined(OS2)
+#if defined(MSDOS) || defined(MSWIN) || defined(OS2) || defined(TOS)
     /*
      * When using a file in the current drive, remove the drive name:
      * "A:\dir\file" -> "\dir\file".  This helps when moving a session file on

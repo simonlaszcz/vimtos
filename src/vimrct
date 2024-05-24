@@ -1,0 +1,24 @@
+set nocp " no strict vi compat. must be first
+set nottyfast " our tty is not too fast
+set backspace=indent,eol,start
+set history=50	" command history
+set noruler " show line,cursor position in status line
+
+set noshowcmd " no partial commands in status line
+set norelativenumber " computing line numbers relative to the cursor can be costly
+set nocursorline " don't highlight active line
+set number " show line numbers
+set hlsearch " highlight all matches
+set syntax=off " no syntax highlighting
+set filetype= " disable file type detection
+set vb " turns off all bells, n.b. visual bell not implemented either
+set shellpipe=>
+
+Kbrate 6 5
+
+" Don't use Ex mode, use Q for formatting
+map Q gq
+
+" CTRL-U in insert mode deletes a lot.  Use CTRL-G u to first break undo,
+" so that you can undo CTRL-U after inserting a line break.
+inoremap <C-U> <C-G>u<C-U>

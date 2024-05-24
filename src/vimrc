@@ -1,0 +1,2 @@
+source $VIM\vimrct
+set nofoldenable " disable code folding

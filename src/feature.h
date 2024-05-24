@@ -63,7 +63,9 @@
 # if defined(MSWIN) || defined(DJGPP) || defined(OS2) || defined(VMS) || defined(MACOS) || defined(AMIGA)
 #  define FEAT_BIG
 # else
-#  ifdef MSDOS
+#  if defined(TOS)
+#   define FEAT_TINY
+#  elif defined(MSDOS)
 #   define FEAT_SMALL
 #  else
 #   define FEAT_NORMAL
@@ -437,7 +439,7 @@
  * +postscript		Printing uses PostScript file output.
  */
 #if defined(FEAT_NORMAL) && (defined(MSWIN) || defined(FEAT_EVAL)) \
-	&& !defined(AMIGA)
+	&& !defined(AMIGA) && !defined(TOS)
 # define FEAT_PRINTER
 #endif
 #if defined(FEAT_PRINTER) && ((defined(MSWIN) && defined(MSWINPS)) \
@@ -475,7 +477,7 @@
  *			and byte2line().
  *			Note: Required for Macintosh.
  */
-#if defined(FEAT_NORMAL) && !defined(MSDOS)
+#if defined(FEAT_NORMAL) && !defined(MSDOS) && !defined(TOS)
 # define FEAT_TITLE
 #endif
 

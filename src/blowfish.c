@@ -32,8 +32,9 @@ typedef union {
 # ifdef HAVE_CONFIG_H
    /* in configure.in AC_C_BIGENDIAN() defines WORDS_BIGENDIAN when needed */
 # else
-   error!
-   Please change this code to define WORDS_BIGENDIAN for big-endian machines.
+#  ifdef TOS
+#   define WORDS_BIGENDIAN
+#  endif
 # endif
 #endif
 

@@ -38,6 +38,9 @@
 # if defined(UNIX) || defined(__EMX__) || defined(VMS)
 #  include "os_unix.pro"
 # endif
+# ifdef TOS
+#  include "os_tos.pro"
+# endif
 # if defined(MSDOS) || defined(WIN16)
 #  include "os_msdos.pro"
 # endif
