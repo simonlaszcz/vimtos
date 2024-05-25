@@ -70,6 +70,7 @@ N_FLAGS=-DTOS -DFEAT_NORMAL
 RUNTIME_SRC=../runtime_tos
 RELROOT=tmp
 RELDIR=$(RELROOT)/vim
+TARNAME=vim74.tar.gz
 DOCSDIR=../runtime_tos/doc
 
 .PHONY: lint obj clean release tags tos_utils
@@ -148,8 +149,7 @@ release: clean all xxd/xxd.ttp rt_doctags doctags.ttp tos_utils
 	cp tos_utils/tospal.tos $(RELDIR)
 	cp vimrct vimrcs vimrc $(RELDIR)
 	cp $(RUNTIME_SRC)/doc/os_atari.txt $(RELDIR)/readme.txt
-	-rm $(RELROOT)/vim74.tar.gz
-	tar -czvf $(RELROOT)/vim74.tar.gz $(RELDIR)/
+	cd $(RELROOT) && tar -czvf $(TARNAME) vim/
 
 
 rt_doctags:
@@ -177,7 +177,8 @@ clean:
 	-rmdir obj_s
 	-rmdir obj_n
 	-rm vim*.ttp
-	-rm xxd/xxd.ttp
+	-rm xxd/xxd.ttp xxd/*.o
+	-rm tos_utils/*.o tos_utils/*.tos tos_utils/*.ttp
 	-rm -r tmp/vim
 	-rm doctags.ttp
 
