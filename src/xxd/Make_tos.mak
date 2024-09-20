@@ -19,7 +19,7 @@ APP=xxd.ttp
 
 $(APP): xxd.c
 	$(CC) $(CFLAGS) -DTOS -o $(APP) $(CMINI_LIB)/crt0.o xxd.c \
-	-lcmini -lgcc
+	-lgcc -lcmini -lgcc
 
 clean:
-	rm -f $(APP) xxd.o
+	-rm -f $(APP) xxd.o

@@ -10,16 +10,8 @@
  * TOS Machine-dependent things. Based on MSDOS
  */
 
-#ifdef FEAT_NORMAL
-# define FEAT_SUFFIX ""
-#elif defined(FEAT_SMALL)
-# define FEAT_SUFFIX "s"
-#else
-# define FEAT_SUFFIX "t"
-#endif
-
 #ifndef SYS_VIMRC_FILE
-# define SYS_VIMRC_FILE         "$VIM\\vimrc" FEAT_SUFFIX
+# define SYS_VIMRC_FILE         "$VIM\\vimrc"
 #endif
 #ifndef USR_VIMRC_FILE
 # define USR_VIMRC_FILE         "$HOME\\_vimrc"

@@ -79,6 +79,7 @@ DOCSDIR=../runtime_tos/doc
 # and optionally TRACE_INPUT, TRACE_OUTPUT: trace console I/O
 
 INCL=vim.h globals.h option.h keymap.h macros.h ascii.h term.h os_tos.h structs.h
+LIBS=-lgcc -lcmini -lgcc
 CFLAGS=--std=gnu99 -Os -s -Iproto \
 	-nostdinc -I$(CMINI_INC) -I$(CMINI_MINT_INC) \
 	-nostdlib -L$(CMINI_LIB)
@@ -89,17 +90,17 @@ all: vimt.ttp vims.ttp vimn.ttp
 vimt.ttp: CFLAGS += $(T_FLAGS)
 vimt.ttp: obj $(OBJ_T) version.c version.h
 	$(CC) $(CFLAGS) -o vimt.ttp $(CMINI_LIB)/crt0.o version.c $(OBJ_T) \
-	-lcmini -lgcc 
+	$(LIBS)
 
 vims.ttp: CFLAGS += $(S_FLAGS)
 vims.ttp: obj $(OBJ_S) version.c version.h
 	$(CC) $(CFLAGS) -o vims.ttp $(CMINI_LIB)/crt0.o version.c $(OBJ_S) \
-	-lcmini -lgcc 
+	$(LIBS)
 
 vimn.ttp: CFLAGS += $(N_FLAGS)
 vimn.ttp: obj $(OBJ_N) version.c version.h
 	$(CC) $(CFLAGS) -o vimn.ttp $(CMINI_LIB)/crt0.o version.c $(OBJ_N) \
-	-lcmini -lgcc 
+	$(LIBS)
 
 obj:
 	-mkdir -p obj_t
@@ -122,7 +123,7 @@ xxd/xxd.ttp: xxd/xxd.c
 
 doctags.ttp: $(DOCSDIR)/doctags.c
 	$(CC) $(CFLAGS) -o doctags.ttp $(CMINI_LIB)/crt0.o $(DOCSDIR)/doctags.c \
-	-lcmini -lgcc 
+	$(LIBS)
 
 tos_utils: 
 	$(MAKE) --directory=tos_utils
@@ -133,7 +134,7 @@ test.tos: test.c
 	-nostdinc -I$(CMINI_INC) -I$(CMINI_MINT_INC) \
 	-nostdlib -L$(CMINI_LIB) \
 	-o test.tos $(CMINI_LIB)/crt0.o test.c \
-	-lcmini -lgcc 
+	$(LIBS)
 
 ###########################################################################
 
@@ -147,7 +148,7 @@ release: clean all xxd/xxd.ttp rt_doctags doctags.ttp tos_utils
 	cp xxd/xxd.ttp $(RELDIR)
 	cp doctags.ttp $(RELDIR)
 	cp tos_utils/tospal.tos $(RELDIR)
-	cp vimrct vimrcs vimrc $(RELDIR)
+	cp vimrc $(RELDIR)
 	cp $(RUNTIME_SRC)/doc/os_atari.txt $(RELDIR)/readme.txt
 	cd $(RELROOT) && tar -czvf $(TARNAME) vim/
 

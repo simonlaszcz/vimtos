@@ -1,4 +1,5 @@
-/* vi:set ts=4 sts=4 sw=4:
+/*
+ * vi:ts=4 sts=4 sw=4:expandtab
  *
  * VIM - Vi IMproved    by Bram Moolenaar
  *
@@ -128,17 +129,18 @@ static int change_resolution(int rez, int mode);
 static void restore_resolution(void);
 static void init_colormap(void);
 static int init_palvim(void);
+static int init_paltos(void);
 static void validate_rezdefs(void);
 static char *get_machine_name(void);
 static struct rezdef *get_rez_by_name(char *name);
 static int save_palette(void);
 static void restore_palette(void);
 
-#define SCRATCH_BUFSZ	(60)
+#define SCRATCH_BUFSZ   (60)
 
 static struct
 {
-    short	startup_kbrate;
+    short   startup_kbrate;
     /* from cookie _VDO */
     long    vdo;
     /* display compatibility flags */
@@ -163,10 +165,11 @@ static struct
     int     colormap[MAX_NUM_COLORS];
     int     using_palvim;
     void    *palvim;
+    void    *paltos;
     int     rez_changed;
     struct vdo_os os;
-	/* temp buffer for strings */
-	char	scratch[SCRATCH_BUFSZ];
+    /* temp buffer for strings */
+    char    scratch[SCRATCH_BUFSZ];
 } g;
 
 const struct vdo_os * const
@@ -186,6 +189,10 @@ vdo_init(void)
     g.startup_rez = rez = Getrez();
     g.startup_physbase = Physbase();
     g.startup_logbase = Logbase();
+
+    /* disable mouse events */
+    char kbs[] = {0x12};
+    Ikbdws(0, kbs);
 
     /* set some flags that determine which modes are valid */
     switch (g.vdo) {
@@ -383,15 +390,20 @@ vdo_get_max_colors(void)
 void 
 vdo_exit(void)
 {
+    /* enable mouse relative reporting */
+    char kbs[] = {8};
+    Ikbdws(0, kbs);
     Kbrate(g.startup_kbrate >> 8, g.startup_kbrate & 0xFF);
     restore_resolution();
     restore_palette();
     free(g.vram);
     free(g.saved_palette);
     free(g.palvim);
+    free(g.paltos);
     g.vram = NULL;
     g.saved_palette = NULL;
     g.palvim = NULL;
+    g.paltos = NULL;
     g.using_palvim = FALSE;
 }
 
@@ -407,7 +419,7 @@ vdo_kbrate(char_u *arg)
         repeat = initial & 0xFF;
         initial >>= 8;
         snprintf(g.scratch, SCRATCH_BUFSZ, "repeat after %d ticks then every %d", initial, repeat);
-		g.scratch[SCRATCH_BUFSZ - 1] = NUL;
+        g.scratch[SCRATCH_BUFSZ - 1] = NUL;
         MSG(g.scratch);
         return;
     }
@@ -428,7 +440,7 @@ vdo_remap_colornum(int n)
     /* since the border color is taken from palette[0], we may have done a swap */
     if (n > -1 && n < MAX_NUM_COLORS) 
         return g.colormap[n];
-    /* assume this is the fg color */
+    /* out of range so assume it's the fg color */
     return g.colormap[MAX_NUM_COLORS - 1];
 }
 
@@ -489,8 +501,10 @@ vdo_resolution(char_u *arg)
     set_vim_var_string(VV_RESOLUTION, p->name, -1);
 #endif
     set_shellsize(p->cols, p->rows, TRUE);
-    /* assume if we change rez we can also change the palette */
-    vdo_palvim(NULL);
+    if (g.using_palvim)
+        vdo_palvim(NULL);
+    else
+        vdo_paltos(NULL);
 }
 
 static int
@@ -538,7 +552,10 @@ vdo_init_bg(void)
         return;
 
     recursive = TRUE;
-    vdo_palvim(NULL);
+    if (g.using_palvim)
+        vdo_palvim(NULL);
+    else
+        vdo_paltos(NULL);
     recursive = FALSE;
 }
 
@@ -604,6 +621,29 @@ vdo_palvim(exarg_T *eap UNUSED)
     init_highlight(TRUE, TRUE);
 }
 
+void
+vdo_paltos(exarg_T *eap UNUSED)
+{
+    if (!g.os.is_singletos) {
+        EMSG(_(e_not_multitos));
+        return;
+    }
+
+    if (save_palette() == FAIL)
+        return;
+    if (init_paltos() == FAIL)
+        return;
+    g.using_palvim = FALSE;
+    init_colormap();
+
+    /* always change the palette */
+    if (g.rezdef->mode > 0)
+        VsetRGB(0, MAX_NUM_COLORS, g.paltos);
+    else
+        Setpalette(g.paltos);
+    init_highlight(TRUE, TRUE);
+}
+
 /**
  * init our palette data in vim color number order
  */
@@ -666,6 +706,71 @@ init_palvim(void)
         pal16[i++] = RGB333(7, 0, 7);   /* Magenta */
     }
     pal16[i++] = RGB333(7, 7, 7);       /* White */
+
+    return OK;
+}
+
+/**
+ * init the TOS palette if changing resolutions with native colors
+ */
+static int
+init_paltos(void)
+{
+    if (g.paltos == NULL) {
+        /* malloc the maximum we might need */
+        size_t sz = g.vdo == VDO_FALCON ? sizeof(__int32_t) : sizeof(__int16_t);
+        if ((g.paltos = malloc(MAX_NUM_COLORS * sz)) == NULL) {
+            EMSG(_(e_no_ram));
+            return FAIL;
+        }
+    }
+
+    int i = 0;
+
+    if (g.rezdef->mode > 0) {
+        __int32_t *pal32 = (__int32_t *)g.paltos;
+        pal32[i++] = 4095;
+        pal32[i++] = 3840;
+        pal32[i++] = 240;
+        pal32[i++] = 4080;
+        pal32[i++] = 15;
+        pal32[i++] = 3855;
+        pal32[i++] = 255;
+        pal32[i++] = 1365;
+        pal32[i++] = 819;
+        pal32[i++] = 3891;
+        pal32[i++] = 1011;
+        pal32[i++] = 4083;
+        pal32[i++] = 831;
+        pal32[i++] = 3903;
+        pal32[i++] = 1023;
+        pal32[i++] = 0;
+        return OK;
+    }
+
+    __int16_t *pal16 = (__int16_t *)g.paltos;
+    pal16[i++] = 4095;
+    if (g.rezdef->num_colors == 16) {
+        pal16[i++] = 3840;
+        pal16[i++] = 240;
+        pal16[i++] = 4080;
+        pal16[i++] = 15;
+        pal16[i++] = 3855;
+        pal16[i++] = 255;
+        pal16[i++] = 1365;
+        pal16[i++] = 819;
+        pal16[i++] = 3891;
+        pal16[i++] = 1011;
+        pal16[i++] = 4083;
+        pal16[i++] = 831;
+        pal16[i++] = 3903;
+        pal16[i++] = 1023;
+    }
+    else if (g.rezdef->num_colors == 4) {
+        pal16[i++] = 3840;
+        pal16[i++] = 240;
+    }
+    pal16[i++] = 0;
 
     return OK;
 }

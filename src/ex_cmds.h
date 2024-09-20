@@ -782,6 +782,8 @@ EX(CMD_resolution,	"rez", ex_resolution,
 			WORD1|CMDWIN),
 EX(CMD_palvim,		"palvim", ex_palvim,
 			WORD1|CMDWIN),
+EX(CMD_paltos,		"paltos", ex_paltos,
+			WORD1|CMDWIN),
 EX(CMD_palmap,		"palmap", ex_palmap,
 			WORD1|CMDWIN),
 #endif

@@ -1,3 +1,12 @@
+## Vim 7.4 for ATARI ST/TOS 
+
+[View the original README](README.txt)
+
+The following [help document](runtime_tos/doc/os_atari.txt) can also be viewed in Vim using 
+
+`:help atari`
+
+```
 *os_atari.txt*	For Vim version 7.4.  Last change: Sep 2024
 
                          Notes on the Atari TOS Port
@@ -218,5 +227,4 @@ Changes to the existing code are wrapped with the 'TOS' macro.
 All os_atari_* files and Make_tos.mak are specific to this port.
 
 ==============================================================================
-
-vim:tw=78:ts=8:ft=help:norl:noexpandtab:
+```

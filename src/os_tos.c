@@ -1,4 +1,4 @@
-/* vi:set ts=4 sts=4 sw=4:
+/* vi:ts=4 sts=4 sw=4:expandtab
  *
  * VIM - Vi IMproved    by Bram Moolenaar
  *
@@ -53,7 +53,6 @@
 #define SC_LEFT     CODE(75, 0)
 #define SC_RIGHT    CODE(77, 0)
 #define SC_UNDO     CODE(97, 0)
-#define SC_HELP     CODE(98, 0)
 #define SC_INSERT   CODE(82, 0)
 #define SC_HOME     CODE(71, 0)
 
@@ -95,7 +94,6 @@ key_bindings_1[] = {
     {SC_LEFT,   "\033[D"},
     {SC_RIGHT,  "\033[C"},
     {SC_UNDO,   "u"},
-    {SC_HELP,   "\033:help\r"},
     {SC_INSERT, "\033I"},
     {SC_HOME,   "H"},
     {0, 0}
@@ -124,6 +122,7 @@ typedef long (__attribute__((cdecl)) *shell_call_t)(char *);
 static int is_executable(char_u *name);
 static int is_pathsep(char_u c);
 static int is_relative(char_u *name);
+static int is_rootdir(char_u *name);
 static int pstrcmp(const void *a, const void *b);
 static int sort_keybinding_desc(const void *va, const void *vb);
 static int super_call_shell();
@@ -202,6 +201,10 @@ mch_exit(int r)
 {
     contrace();
     Supexec(super_restore);
+    /* ensure we exit to a fresh cmdline */
+    out_char('\r');
+    out_char('\n');
+    out_flush();
     ml_close_all(TRUE);
     vdo_exit();
 #if defined(TOS_DEBUG) && !defined(NATFEATS)
@@ -221,9 +224,17 @@ mch_init(void)
 int 
 mch_get_shellsize(void)
 {
+    /* in single tos we can just use the current resolution, which may have 
+    changed and differ to the envvars anyway */
+    if (g.os->is_singletos) {
+        vdo_get_default_tsize(&Rows, &Columns);
+        limit_screen_size();
+        return OK;
+    }
+
+    Rows = Columns = 0;
     char *erows = getenv("LINES");
     char *ecols = getenv("COLUMNS");
-    Rows = Columns = 0;
 
     if (erows != NULL && ecols != NULL) {
         Rows = atoi(erows);
@@ -826,11 +837,15 @@ mch_isdir(char_u *name)
 
     if (name == NULL || *name == NUL)
         goto ret_false;
+    /* stat() fails on C:\ */
+    if (is_rootdir(name))
+        goto ret_true;
     if (mch_stat(name, &s) != 0)
         goto ret_false;
     if ((s.st_mode & S_IFDIR) != S_IFDIR)
         goto ret_false;
 
+ret_true:
     contracev("TRUE %s", name);
     return TRUE;
 ret_false:
@@ -848,7 +863,7 @@ int
 mch_nodetype(char_u *name)
 {
     if (STRICMP(name, "AUX:") == 0 || STRICMP(name, "CON:") == 0 || STRICMP(name, "PRN:") == 0)
-    	return NODE_WRITABLE;
+        return NODE_WRITABLE;
     return NODE_NORMAL;
 }
 
@@ -934,6 +949,21 @@ mch_stat(char *path, struct stat *buff)
     }
 
     return rv;
+}
+
+static int
+is_rootdir(char_u *name)
+{
+    if (name == NULL || name[0] == NUL)
+        return FALSE;
+    if (name[1] != ':')
+        return FALSE;
+    if (name[2] == NUL)
+        return TRUE;
+    if (!is_pathsep(name[2]))
+        return FALSE;
+
+    return name[3] == NUL;
 }
 
 static long

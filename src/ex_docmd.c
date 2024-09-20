@@ -150,6 +150,7 @@ static void	ex_colorscheme __ARGS((exarg_T *eap));
 #ifdef TOS
 static void	ex_resolution __ARGS((exarg_T *eap));
 static void	ex_palvim __ARGS((exarg_T *eap));
+static void	ex_paltos __ARGS((exarg_T *eap));
 static void	ex_palmap __ARGS((exarg_T *eap));
 static void	ex_kbrate __ARGS((exarg_T *eap));
 #endif
@@ -3974,6 +3975,7 @@ set_one_cmd_context(xp, buff)
 	    xp->xp_pattern = arg;
 	    break;
 	case CMD_palvim:
+	case CMD_paltos:
 	case CMD_palmap:
 	case CMD_kbrate:
 	    xp->xp_context = EXPAND_NOTHING;
@@ -6552,6 +6554,13 @@ ex_palvim(eap)
     exarg_T	*eap;
 {
     vdo_palvim(eap);
+}
+
+    static void
+ex_paltos(eap)
+    exarg_T	*eap;
+{
+    vdo_paltos(eap);
 }
 
     static void

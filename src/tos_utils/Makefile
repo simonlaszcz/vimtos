@@ -17,7 +17,7 @@ all: tospal.tos
 
 tospal.tos: tospal.c
 	$(CC) $(CFLAGS) -o tospal.tos $(CMINI_LIB)/crt0.o tospal.c \
-	-lcmini -lgcc
+	-lgcc -lcmini -lgcc
 
 clean:
 	-rm -f tospal.tos *.o

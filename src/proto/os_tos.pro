@@ -44,6 +44,7 @@ void vdo_init_bg __ARGS((void));
 char_u *vdo_iter_resolutions __ARGS((int idx));
 void vdo_palmap __ARGS((char_u *arg));
 void vdo_palvim __ARGS((exarg_T *eap));
+void vdo_paltos __ARGS((exarg_T *eap));
 void vdo_resolution __ARGS((char_u *arg));
 void vdo_kbrate __ARGS((char_u *arg));
 char_u *vdo_get_bg_default __ARGS((void));

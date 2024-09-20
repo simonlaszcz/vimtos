@@ -1,4 +1,5 @@
 /*
+ * vi:ts=4 sts=4 sw=4:expandtab
  * VIM - Vi IMproved    by Bram Moolenaar
  *
  * Do ":help uganda"  in Vim to read copying and usage conditions.

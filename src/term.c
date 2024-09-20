@@ -843,7 +843,7 @@ static struct builtin_term builtin_termcaps[] =
     {(int)KS_SR,	IF_EB("\033I", ESC_STR "I")},
     {(int)KS_VE,	IF_EB("\033e", ESC_STR "e")},
     {(int)KS_VI,	IF_EB("\033f", ESC_STR "f")},
-    {(int)KS_SO,	IF_EB("\033p", ESC_STR "p")},
+    {(int)KS_SO,	IF_EB("\033p", ESC_STR "p")}, /* stand-out. same as reverse here */
     {(int)KS_SE,	IF_EB("\033q", ESC_STR "q")},
 #  ifdef TOS
     /* Add 32 to the zero based number */
@@ -851,7 +851,9 @@ static struct builtin_term builtin_termcaps[] =
     {(int)KS_CAF,	IF_EB("\033b%+ ", ESC_STR "b%+ ")}, /* fg colour */
     {(int)KS_CCO,	"16"},                  /* always 16, regadless of rez */
     {(int)KS_OP,	"\033c \033b/"},	/* reset colors */
-    {(int)KS_ME,	"\033c \033b/\033q"},	/* reset term */
+    {(int)KS_ME,	"\033c \033b/\033q"},	/* normal (reset term) */
+    {(int)KS_MR,	IF_EB("\033p", ESC_STR "p")},	/* reverse */
+    {(int)KS_MD,	IF_EB("\033p", ESC_STR "p")},	/* bold. same as reverse here */
 #  endif
     {K_UP,		IF_EB(KESC "A", ESC_STR "A")},
     {K_DOWN,		IF_EB(KESC "B", ESC_STR "B")},
