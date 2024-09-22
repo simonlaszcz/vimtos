@@ -153,6 +153,7 @@ static void	ex_palvim __ARGS((exarg_T *eap));
 static void	ex_paltos __ARGS((exarg_T *eap));
 static void	ex_palmap __ARGS((exarg_T *eap));
 static void	ex_kbrate __ARGS((exarg_T *eap));
+static void	ex_sane __ARGS((exarg_T *eap));
 #endif
 static void	ex_quit __ARGS((exarg_T *eap));
 static void	ex_cquit __ARGS((exarg_T *eap));
@@ -6575,6 +6576,15 @@ ex_kbrate(eap)
     exarg_T	*eap;
 {
     vdo_kbrate(eap->arg);
+}
+
+    static void
+ex_sane(eap)
+    exarg_T	*eap;
+{
+    vdo_sane(eap->arg);
+    eap->arg = "DEFAULT";
+    ex_colorscheme(eap);
 }
 #endif
 

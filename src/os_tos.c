@@ -135,6 +135,7 @@ static void sort_keybinding_table(struct key_binding *t);
 
 static struct
 {
+    int     was_initialised;
     char    startup_conterm;
     char_u  *shell_cmd;
     const struct vdo_os *os;
@@ -148,13 +149,25 @@ void
 mch_early_init(void)
 {
 #if defined(TOS_DEBUG) && !defined(NATFEATS)
-    tos_trace = fopen("C:\\TRACE.TXT", "w");
+    tos_trace = fopen("TRACE.TXT", "w");
 #endif
+    contrace();
     memset(&g, 0, sizeof(g));
+    vdo_early_init();
+}
+
+void 
+mch_init(void)
+{
+    contrace();
+    g.was_initialised = TRUE;
     g.os = vdo_init();
     Supexec(super_init);
     sort_keybinding_table(key_bindings_1);
     sort_keybinding_table(key_bindings_2);
+    vdo_get_default_tsize(&Rows, &Columns);
+    limit_screen_size();
+    out_flush();
 }
 
 static void
@@ -200,7 +213,13 @@ void
 mch_exit(int r)
 {
     contrace();
-    Supexec(super_restore);
+
+    if (g.was_initialised) {
+        Supexec(super_restore);
+        /* reset the console fg/bg colour */
+        OUT_STR_NF("\033c \033b/");
+    }
+
     /* ensure we exit to a fresh cmdline */
     out_char('\r');
     out_char('\n');
@@ -211,14 +230,6 @@ mch_exit(int r)
     fclose(tos_trace);
 #endif
     exit(r);
-}
-
-void 
-mch_init(void)
-{
-    vdo_get_default_tsize(&Rows, &Columns);
-    limit_screen_size();
-    out_flush();
 }
 
 int 

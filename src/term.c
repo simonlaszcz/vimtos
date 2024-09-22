@@ -2605,7 +2605,7 @@ out_char_nf(c)
 }
 
 #if defined(FEAT_TITLE) || defined(FEAT_MOUSE_TTY) || defined(FEAT_GUI) \
-    || defined(FEAT_TERMRESPONSE) || defined(PROTO)
+    || defined(FEAT_TERMRESPONSE) || defined(PROTO) || defined(TOS)
 /*
  * A never-padding out_str.
  * use this whenever you don't want to run the string through tputs.

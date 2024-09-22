@@ -24,20 +24,14 @@ The following [help document](runtime_tos/doc/os_atari.txt) can also be viewed i
 *TOS_01* Introduction					*atari*
 
 The distribution contains tiny, small and normal feature builds. The
-executables are named vimt.ttp, vims.ttp and vim.ttp respectively. 
+executables are named vimt.ttp, vims.ttp and vim.ttp respectively. There are
+also 68020-60 builds of each.
 
 vimt.ttp starts and quits much faster than vim.ttp and is also much smaller
 (~450Kb vs. ~1Mb) but has far fewer features (e.g. splits, command windows and
 eval are missing).
 
 Use the :version command to check what features a build has.
-
-Advanced features such as tags and syntax highlighting are slow, even on 
-an accelerated machine. Tags are usable as long as tag files are kept
-reasonably small. Syntax highlighting performance can be improved a little by 
-limiting the number of columns that are parsed (set synmaxcol=n). 
-Core features perform quite well. You might need to experiment with Vim 
-options to make things work.
 
 ==============================================================================
 
@@ -73,20 +67,19 @@ They could be used to conditionally set options in your vimrc.
 You may need to test for the availability of a feature in vimrc. Do this 
 using has(), e.g.
 
-    if has("compiler")
-    compiler DEVPAC
-    endif
+if has("eval")
+  compiler DEVPAC
+  color BLUE
+endif
 
-    if has("eval")
-    color BLUE
-    endif
-
-    if has("eval") && v:os=="TOS"
-       " set options, define functions. Whatever you want
-    endif
+if has("eval") && v:os=="TOS"
+  " set options, define functions. Whatever you want
+endif
 
 ATARI Vim looks for vimrc files in the usual places. Check where these are
 using the :version command.
+
+It is recommended to store user files in $HOME\vimfiles.
 
 ==============================================================================
 
@@ -94,11 +87,11 @@ using the :version command.
 
 Any shell that sets the _shell_p vector can be used, e.g. Gulam.
 
-:lmake and :lopen can be used in vim.ttp. By default Vim attempts to execute the
-make utility in the current working directory. If make is not installed, the 
-simplest way to get this to work is to create a shell script called 'make.g'.
+:lmake and :lopen can be used in vim.ttp. By default Vim attempts to execute
+the make utility in the current working directory. If make is not installed,
+the simplest way to get this to work is to create a shell script.
 
-e.g. make.g might contain:
+e.g. 'make.g' might contain:
 
 d:\devpac\gen.ttp main.s
 
@@ -110,17 +103,18 @@ Then to make, use:
 
 	:lmake
 
-The cut down runtime includes compiler files for gcc and devpac. These files 
-will format the error output from these programs for display by :lopen.
+The cut down runtime includes compiler files for gcc, devpac and vasm. These
+files will format the error output from these programs for display by :lopen.
 
 For devpac you will need to set the default compiler first. Do this with the 
 command:
 
 	:compiler DEVPAC
+	:compiler<SP><TAB>	to enumerate them
 
 ==============================================================================
 
-*TOS_04* Setting the Palette		*paltos* *palvim* *palmap* *color*
+*TOS_04* Setting the Palette		*paltos* *palvim* *palmap* *sane*
 
 Vim colours are numbered thus:
 
@@ -191,13 +185,19 @@ e.g.
 
 will map colour index 10 to Vim colour number 0 etc
 
+:sane
+
+Will restore your palette and resolution to their startup values.
+
 ==============================================================================
 
 *TOS_05* Changing Resolution					*rez*
 
 :rez		will display the current resolution.
-:rez name	will set the named resolution
+:rez name	will set the named resolution.
 :rez<SP><TAB>	will allow you to <TAB> through all valid resolutions.
+:sane		will restore your palette and resolution to their startup
+		values.
 
 When Vim is quit, the startup resolution is restored.
 
@@ -207,7 +207,7 @@ The current resolution is stored in the variable |v:resolution|.
 
 *TOS_06* Changing the Keyboard Repeat Rate			*Kbrate*
 
-:Kbrate			Display the current setting
+:Kbrate			Display the current setting.
 :Kbrate initial every	Set keypresses to repeat after an initial
 			number of ticks and then every n 50/60Hz ticks.
 
@@ -227,4 +227,6 @@ Changes to the existing code are wrapped with the 'TOS' macro.
 All os_atari_* files and Make_tos.mak are specific to this port.
 
 ==============================================================================
+
+vim:tw=78:ts=8:ft=help:norl:noexpandtab:
 ```

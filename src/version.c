@@ -1490,7 +1490,11 @@ list_version()
 # endif
 #endif
 #ifdef TOS
+# ifdef BUILD
+    MSG_PUTS(_("\nATARI ST TOS (" BUILD ") version"));
+# else
     MSG_PUTS(_("\nATARI ST TOS version"));
+# endif
 #endif
 #ifdef MACOS
 # ifdef MACOS_X

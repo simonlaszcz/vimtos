@@ -47,6 +47,7 @@ void vdo_palvim __ARGS((exarg_T *eap));
 void vdo_paltos __ARGS((exarg_T *eap));
 void vdo_resolution __ARGS((char_u *arg));
 void vdo_kbrate __ARGS((char_u *arg));
+void vdo_sane __ARGS((char_u *arg));
 char_u *vdo_get_bg_default __ARGS((void));
 int vdo_remap_colornum __ARGS((int n));
 int vdo_get_max_colors __ARGS((void));

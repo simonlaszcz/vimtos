@@ -1,3 +1,12 @@
+/* vi:ts=4 sts=4 sw=4:expandtab
+ *
+ * VIM - Vi IMproved    by Bram Moolenaar
+ *
+ * Do ":help uganda"  in Vim to read copying and usage conditions.
+ * Do ":help credits" in Vim to see a list of people who contributed.
+ * See README.txt for an overview of the Vim source code.
+ */
+
 #ifndef OS_TOS_DEBUG_H
 #define OS_TOS_DEBUG_H
 
@@ -10,8 +19,10 @@
    extern FILE *tos_trace;
 #  define TOSPRINT(...) \
     do { \
-        if (tos_trace != NULL) \
+        if (tos_trace != NULL) { \
             fprintf(tos_trace, __VA_ARGS__); \
+            fflush(tos_trace); \
+        } \
     } while (0);
 # endif
 

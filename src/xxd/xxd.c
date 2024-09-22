@@ -216,7 +216,12 @@ char osver[] = "";
 /* Let's collect some prototypes */
 /* CodeWarrior is really picky about missing prototypes */
 static void exit_with_usage __P((void));
+#ifdef TOS
+static void diex(int, int);
+#define die(n) diex(__LINE__, n);
+#else
 static void die __P((int));
+#endif
 static int huntype __P((FILE *, FILE *, FILE *, int, int, long));
 static void xxdline __P((FILE *, char *, int));
 
@@ -270,6 +275,16 @@ exit_with_usage()
   exit(1);
 }
 
+#ifdef TOS
+  static void
+diex(ln, ret)
+  int ln, ret;
+{
+  fprintf(stderr, "died at line %d (%d)", ln, ret);
+  exit(ret);
+}
+
+#else
   static void
 die(ret)
   int ret;
@@ -278,6 +293,7 @@ die(ret)
   perror(NULL);
   exit(ret);
 }
+#endif
 
 /*
  * Max. cols binary characters are decoded from the input stream per line.

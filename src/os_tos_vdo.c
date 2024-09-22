@@ -140,6 +140,7 @@ static void restore_palette(void);
 
 static struct
 {
+    int     was_initialised;
     short   startup_kbrate;
     /* from cookie _VDO */
     long    vdo;
@@ -163,21 +164,31 @@ static struct
     /* current rez */
     struct rezdef *rezdef;
     int     colormap[MAX_NUM_COLORS];
-    int     using_palvim;
+    enum
+    {
+        PALETTE_NONE,
+        PALETTE_TOS,
+        PALETTE_VIM
+    }       active_palette;
     void    *palvim;
     void    *paltos;
-    int     rez_changed;
     struct vdo_os os;
     /* temp buffer for strings */
     char    scratch[SCRATCH_BUFSZ];
 } g;
+
+void
+vdo_early_init(void)
+{
+    memset(&g, 0, sizeof(g));
+}
 
 const struct vdo_os * const
 vdo_init(void)
 {
     int rez = 0;
     int mode = 0;
-    memset(&g, 0, sizeof(g));
+    g.was_initialised = TRUE;
     g.startup_kbrate = Kbrate(-1, -1);
     g.rezdef = &rezinvalid;
 
@@ -230,6 +241,7 @@ vdo_init(void)
     if ((g.rezdef = match_rezdef(rez, mode)) == &rezinvalid)
         EMSG(_(e_rez_unknown));
     init_colormap();
+    (void)save_palette();
 
     static char *os_names[] = {"TOS", "MagiC", "MiNT", "Geneva"};
     g.os.magic_version = get_magic_version();
@@ -390,6 +402,9 @@ vdo_get_max_colors(void)
 void 
 vdo_exit(void)
 {
+    if (!g.was_initialised)
+        return;
+
     /* enable mouse relative reporting */
     char kbs[] = {8};
     Ikbdws(0, kbs);
@@ -404,7 +419,29 @@ vdo_exit(void)
     g.saved_palette = NULL;
     g.palvim = NULL;
     g.paltos = NULL;
-    g.using_palvim = FALSE;
+    g.active_palette = PALETTE_NONE;
+}
+
+void
+vdo_sane(char_u *arg UNUSED)
+{
+    restore_resolution();
+    restore_palette();
+    free(g.vram);
+    free(g.palvim);
+    free(g.paltos);
+    g.vram = NULL;
+    g.palvim = NULL;
+    g.paltos = NULL;
+    g.active_palette = PALETTE_NONE;
+
+    if ((g.rezdef = match_rezdef(g.startup_rez, g.startup_mode)) == &rezinvalid)
+        EMSG(_(e_rez_unknown));
+#ifdef FEAT_EVAL
+    set_vim_var_string(VV_RESOLUTION, g.rezdef->name, -1);
+#endif
+    init_colormap();
+    set_shellsize(g.rezdef->cols, g.rezdef->rows, TRUE);
 }
 
 void
@@ -418,7 +455,7 @@ vdo_kbrate(char_u *arg)
         initial = Kbrate(-1, -1);
         repeat = initial & 0xFF;
         initial >>= 8;
-        snprintf(g.scratch, SCRATCH_BUFSZ, "repeat after %d ticks then every %d", initial, repeat);
+        snprintf(g.scratch, SCRATCH_BUFSZ, "Repeat after %d ticks then every %d", initial, repeat);
         g.scratch[SCRATCH_BUFSZ - 1] = NUL;
         MSG(g.scratch);
         return;
@@ -495,13 +532,12 @@ vdo_resolution(char_u *arg)
     if (change_resolution(p->rez, p->mode) == FAIL)
         return;
 
-    g.rez_changed = TRUE;
     g.rezdef = p;
 #ifdef FEAT_EVAL
     set_vim_var_string(VV_RESOLUTION, p->name, -1);
 #endif
     set_shellsize(p->cols, p->rows, TRUE);
-    if (g.using_palvim)
+    if (g.active_palette == PALETTE_VIM)
         vdo_palvim(NULL);
     else
         vdo_paltos(NULL);
@@ -530,9 +566,6 @@ change_resolution(int rez, int mode)
 static void
 restore_resolution(void)
 {
-    if (!g.rez_changed)
-        return;
-
     if (g.vdo == VDO_FALCON)
         VsetScreen(g.startup_logbase, g.startup_physbase, g.startup_mode);
     else
@@ -548,11 +581,11 @@ vdo_init_bg(void)
     /* may be called via init_highlight -> load_colors */
     static int recursive = FALSE;
 
-    if (!g.using_palvim || recursive)
+    if (recursive)
         return;
 
     recursive = TRUE;
-    if (g.using_palvim)
+    if (g.active_palette == PALETTE_VIM)
         vdo_palvim(NULL);
     else
         vdo_paltos(NULL);
@@ -577,7 +610,7 @@ vdo_palvim(exarg_T *eap UNUSED)
 
     if (init_palvim() == FAIL)
         return;
-    g.using_palvim = TRUE;
+    g.active_palette = PALETTE_VIM;
     init_colormap();
 
     int bg = 0;
@@ -633,7 +666,7 @@ vdo_paltos(exarg_T *eap UNUSED)
         return;
     if (init_paltos() == FAIL)
         return;
-    g.using_palvim = FALSE;
+    g.active_palette = PALETTE_TOS;
     init_colormap();
 
     /* always change the palette */
@@ -789,7 +822,7 @@ init_colormap(void)
 
     switch (g.rezdef->num_colors) {
     case 16:
-        if (g.using_palvim) {
+        if (g.active_palette == PALETTE_VIM) {
             for (int i = 0; i < MAX_NUM_COLORS; ++i)
                 g.colormap[i] = i;
         }
@@ -797,7 +830,7 @@ init_colormap(void)
             memcpy(g.colormap, tos16, sizeof(tos16));
         break;
     case 4:
-        if (g.using_palvim)
+        if (g.active_palette == PALETTE_VIM)
             memcpy(g.colormap, vim4, sizeof(vim4));
         else
             memcpy(g.colormap, tos4, sizeof(tos4));
