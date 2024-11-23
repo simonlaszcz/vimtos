@@ -11,7 +11,11 @@ let current_compiler = "devpac"
 let s:cpo_save = &cpo
 set cpo&vim
 
-CompilerSet errorformat=Error:\ %m\ at\ line\ %l\ in\ file\ %f,%-G%.%#
+CompilerSet errorformat=
+	\%EError:\ %m\ at\ line\ %l\ in\ file\ %f,
+	\%WWarning:\ %m\ at\ line\ %l\ in\ file\ %f,
+	\%Z%.%#\ \ \ \ \ %#%m,
+	\%-G%.%#
 
 let &cpo = s:cpo_save
 unlet s:cpo_save
