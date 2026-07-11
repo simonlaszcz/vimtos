@@ -1,3 +1,5 @@
+Moved to https://codeberg.org/simonlaszcz/vimtos
+
 ## Vim 7.4 for ATARI ST/TOS 
 
 [View the original README](README.txt)
